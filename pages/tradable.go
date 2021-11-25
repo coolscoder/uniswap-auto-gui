@@ -4,15 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
+	"github.com/hirokimoto/crypto-auto/services"
+	"github.com/hirokimoto/crypto-auto/utils"
 	"github.com/leekchan/accounting"
-	"github.com/uniswap-auto-gui/services"
-	"github.com/uniswap-auto-gui/utils"
 )
 
 func tradableScreen(_ fyne.Window) fyne.CanvasObject {
@@ -25,14 +24,10 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 
 	find := widget.NewButton("Find Tradable Coins", func() {
 		infProgress.Start()
-		go func() {
-			for {
-				c1 := make(chan string, 1)
-				go utils.Post(c1, "pairs", "")
-				trackTradables(c1, dataList)
-				time.Sleep(time.Minute * 20)
-			}
-		}()
+		command2 := make(chan string)
+		progress2 := make(chan int)
+		tt := &services.Tokens{}
+		go services.AnalyzePairs(command2, progress2, tt)
 	})
 
 	list := widget.NewListWithData(dataList,
@@ -55,7 +50,6 @@ func tradableScreen(_ fyne.Window) fyne.CanvasObject {
 
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {
-				services.StoreAndRemovePair(pair)
 				btn.Refresh()
 			}
 

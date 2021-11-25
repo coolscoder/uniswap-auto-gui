@@ -17,12 +17,11 @@ var (
 		"coins":    {"Coins", "", coinsScreen},
 		"track":    {"Track", "", trackScreen},
 		"tradable": {"Tradable", "", tradableScreen},
-		"stable":   {"Stable", "", stableScreen},
 	}
 
 	// PageIndex  defines how our pages should be laid out in the index tree
 	PageIndex = map[string][]string{
-		"":            {"welcome", "coins", "track", "tradable", "stable"},
+		"":            {"welcome", "coins", "track", "tradable"},
 		"collections": {"list", "table", "tree"},
 		"containers":  {"apptabs", "border", "box", "center", "doctabs", "grid", "scroll", "split"},
 		"widgets":     {"accordion", "button", "card", "entry", "form", "input", "progress", "text", "toolbar"},

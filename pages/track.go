@@ -10,16 +10,14 @@ import (
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/hirokimoto/crypto-auto/services"
+	"github.com/hirokimoto/crypto-auto/utils"
 	"github.com/leekchan/accounting"
-	"github.com/uniswap-auto-gui/services"
-	"github.com/uniswap-auto-gui/utils"
 )
 
 func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	var selected utils.Swaps
-	var oldPrice float64
 	var activePair string
-	alertType := "Alert any changes!"
 	money := accounting.Accounting{Symbol: "$", Precision: 6}
 
 	ai := 0.1
@@ -39,12 +37,12 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	maxEntry := widget.NewEntryWithData(binding.FloatToString(maxdata))
 
 	alerts := widget.NewRadioGroup([]string{"Alert any changes!", "Alert special changes!"}, func(s string) {
-		alertType = s
+		fmt.Println(s)
 	})
 	alerts.Horizontal = true
 	alerts.SetSelected("Alert any changes!")
 
-	pairs := services.ReadPairs()
+	pairs := []string{"0x7a99822968410431edd1ee75dab78866e31caf39"}
 	pairsdata := binding.BindStringList(&pairs)
 
 	name := widget.NewEntry()
@@ -52,7 +50,6 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 	append := widget.NewButton("Append", func() {
 		if name.Text != "" {
 			pairsdata.Append(name.Text)
-			services.WritePairs(pairs)
 		}
 	})
 
@@ -95,21 +92,18 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 			duration := left.Objects[4].(*widget.Label)
 
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
-			btn.OnTapped = func() {
-				services.StoreAndRemovePair(pair)
-				pairs = services.ReadPairs()
-			}
+			btn.OnTapped = func() {}
 
 			var swaps utils.Swaps
 			cc := make(chan string, 1)
 
 			go func() {
 				for {
-					utils.Post(cc, "swaps", pair)
+					go utils.SwapsByCounts(cc, 2, pair)
 
 					msg := <-cc
 					json.Unmarshal([]byte(msg), &swaps)
-					n, p, c, d, a := services.SwapsInfo(swaps, ai)
+					n, p, c, d, _, _ := services.SwapsInfo(swaps, ai)
 
 					if label.Text != n {
 						label.SetText(n)
@@ -129,22 +123,7 @@ func trackScreen(_ fyne.Window) fyne.CanvasObject {
 
 					if activePair == pair {
 						selected = swaps
-						oldPrice, _, _, _, _ = services.SwapInfo(swaps.Data.Swaps[0])
 						trades.Refresh()
-					}
-					if a {
-						services.Notify("Alert large changes!", n, url)
-					}
-					if alertType == "Alert any changes!" {
-						if pair == activePair && oldPrice != p {
-							services.Notify("Price any changes!", fmt.Sprintf("%s $%f  $%f", n, p, c), url)
-							oldPrice = p
-						}
-					} else {
-						if pair == activePair && oldPrice != p {
-							oldPrice = p
-							services.Notify("Price special changes!", fmt.Sprintf("%s $%f  $%f", n, p, c), url)
-						}
 					}
 					time.Sleep(time.Second * 5)
 				}
