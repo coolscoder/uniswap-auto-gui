@@ -1,4 +1,4 @@
-module github.com/uniswap-auto-gui
+module github.com/hirokimoto/uniswap-auto-gui
 
 go 1.17
 

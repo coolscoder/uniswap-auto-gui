@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"github.com/uniswap-auto-gui/data"
+	"github.com/hirokimoto/uniswap-auto-gui/data"
 )
 
 func parseURL(urlStr string) *url.URL {

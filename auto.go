@@ -12,8 +12,8 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/uniswap-auto-gui/pages"
-	"github.com/uniswap-auto-gui/services"
+	"github.com/hirokimoto/uniswap-auto-gui/pages"
+	"github.com/hirokimoto/uniswap-auto-gui/services"
 )
 
 const preferenceCurrentPage = "currentPage"
